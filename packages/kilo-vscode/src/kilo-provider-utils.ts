@@ -1,4 +1,4 @@
-import type { SessionInfo, AgentInfo, Provider, SSEEvent } from "./services/cli-backend/types"
+import type { SessionInfo, AgentInfo, Provider, SSEEvent, MessageError } from "./services/cli-backend/types"
 
 export function sessionToWebview(session: SessionInfo) {
   return {
@@ -40,7 +40,7 @@ export type WebviewMessage =
     }
   | {
       type: "messageCreated"
-      message: { id: string; sessionID: string; role: string; createdAt: string; cost?: number; tokens?: unknown }
+      message: { id: string; sessionID: string; role: string; createdAt: string; cost?: number; tokens?: unknown; error?: MessageError }
     }
   | { type: "sessionStatus"; sessionID: string; status: string; attempt?: number; message?: string; next?: number }
   | {
@@ -85,6 +85,7 @@ export function mapSSEEventToWebviewMessage(event: SSEEvent, sessionID: string |
           createdAt: new Date(event.properties.info.time.created).toISOString(),
           cost: event.properties.info.cost,
           tokens: event.properties.info.tokens,
+          error: event.properties.info.error,
         },
       }
     case "session.status": {
