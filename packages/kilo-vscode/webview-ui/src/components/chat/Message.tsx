@@ -10,23 +10,13 @@
 
 import { Component, Show } from "solid-js"
 import { Message as KiloMessage } from "@kilocode/kilo-ui/message-part"
-import { Card } from "@kilocode/kilo-ui/card"
 import { useSession } from "../../context/session"
-import type { Message as MessageType, MessageError } from "../../types/messages"
+import { ErrorMessage } from "./ErrorMessage"
+import type { Message as MessageType } from "../../types/messages"
 import type { Message as SDKMessage, Part as SDKPart } from "@kilocode/sdk/v2"
 
 interface MessageProps {
   message: MessageType
-}
-
-/**
- * Extract a user-friendly error message from the error payload.
- */
-function getErrorText(error: MessageError): string {
-  const data = error.data as Record<string, unknown>
-  const msg = data?.message
-  if (typeof msg === "string" && msg) return msg
-  return error.name
 }
 
 export const Message: Component<MessageProps> = (props) => {
@@ -37,9 +27,7 @@ export const Message: Component<MessageProps> = (props) => {
     <Show when={parts().length > 0 || props.message.content || props.message.error}>
       <KiloMessage message={props.message as unknown as SDKMessage} parts={parts()} />
       <Show when={props.message.error}>
-        <Card variant="error" class="error-card">
-          {getErrorText(props.message.error!)}
-        </Card>
+        <ErrorMessage error={props.message.error!} />
       </Show>
     </Show>
   )
