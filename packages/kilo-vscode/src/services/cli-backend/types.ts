@@ -26,6 +26,23 @@ export interface TokenUsage {
   cache?: { read: number; write: number }
 }
 
+// Error types from MessageV2 — discriminated union matching the CLI's NamedError shapes
+export type MessageError =
+  | { name: "APIError"; data: {
+      message: string;
+      statusCode?: number;
+      isRetryable: boolean;
+      responseHeaders?: Record<string, string>;
+      responseBody?: string;
+      metadata?: Record<string, string> }
+    }
+  | { name: "ProviderAuthError"; data: { providerID: string; message: string } }
+  | { name: "ContextOverflowError"; data: { message: string; responseBody?: string } }
+  | { name: "MessageOutputLengthError"; data: Record<string, unknown> }
+  | { name: "MessageAbortedError"; data: { message: string } }
+  | { name: "StructuredOutputError"; data: { message: string; retries: number } }
+  | { name: "UnknownError"; data: { message: string } }
+
 // Message types from MessageV2
 export interface MessageInfo {
   id: string
@@ -35,6 +52,8 @@ export interface MessageInfo {
     created: number
     completed?: number
   }
+  // Present on assistant messages that ended with an error
+  error?: MessageError
   // Present on assistant messages
   cost?: number
   tokens?: TokenUsage
